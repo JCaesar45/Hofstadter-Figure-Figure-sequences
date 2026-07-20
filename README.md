@@ -107,5 +107,5 @@ MIT — use it, hack it, ship it.
 
 ---
 
-*Crafted with precision. No AI slop detected.*
+*Crafted with precision.*
 ```
