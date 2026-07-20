@@ -1,0 +1,575 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Hofstadter Figure-Figure | R/S Sequences</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #14141f;
+      --card: #1a1a2e;
+      --card-hover: #222240;
+      --gold: #d4af37;
+      --gold-light: #f0d680;
+      --gold-dark: #8b7326;
+      --champagne: #f7e7ce;
+      --text: #e8e8f0;
+      --text-dim: #9898b8;
+      --accent-r: #e94560;
+      --accent-s: #0f9b8e;
+      --accent-r-bright: #ff5e7a;
+      --accent-s-bright: #15cdb8;
+      --border: rgba(212, 175, 55, 0.25);
+      --border-active: rgba(212, 175, 55, 0.7);
+      --shadow-gold: 0 8px 32px -8px rgba(212, 175, 55, 0.15);
+      --glass: rgba(20, 20, 40, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-smooth: all 0.5s var(--ease-out-expo);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(233, 69, 96, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 60%, rgba(15, 155, 142, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(2px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .masterpiece {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ── Header Crest ── */
+    .crest {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      text-align: center;
+    }
+
+    .crest-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+      flex-shrink: 0;
+    }
+
+    .crest h1 {
+      font-family: 'JetBrains Mono', 'Inter', monospace;
+      font-weight: 300;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      letter-spacing: 0.03em;
+      background: linear-gradient(180deg, var(--champagne) 0%, var(--gold) 60%, #a0843c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+    }
+
+    .crest .sub {
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Intro Ticker ── */
+    .sequence-teaser {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .teaser-seq {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+    }
+
+    .teaser-seq span {
+      color: var(--champagne);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .teaser-r span {
+      color: var(--accent-r-bright);
+    }
+
+    .teaser-s span {
+      color: var(--accent-s-bright);
+    }
+
+    /* ── Main Calculator Card ── */
+    .calculator-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.2rem 2rem;
+      box-shadow: var(--shadow-gold), 0 4px 60px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: var(--transition-smooth);
+    }
+
+    .calculator-card:hover {
+      border-color: var(--border-active);
+      box-shadow: 0 12px 48px -10px rgba(212, 175, 55, 0.25), 0 4px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+    }
+
+    .input-wrapper {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-wrapper label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .input-wrapper label i {
+      font-style: normal;
+      font-size: 1rem;
+    }
+
+    .input-field {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--champagne);
+      outline: none;
+      transition: var(--transition-smooth);
+      width: 100%;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .input-field:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15), inset 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-luxury {
+      background: linear-gradient(145deg, #1e1e32, #151525);
+      border: 1px solid var(--gold-dark);
+      color: var(--gold-light);
+      padding: 0.9rem 2rem;
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.4s var(--ease-out-expo);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-luxury:hover {
+      background: linear-gradient(145deg, #2a2a44, #1b1b30);
+      border-color: var(--gold);
+      color: var(--champagne);
+      box-shadow: 0 8px 28px rgba(212, 175, 55, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-luxury:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-compute {
+      background: linear-gradient(145deg, #2e1a26, #1c0f17);
+      border-color: var(--accent-r);
+      color: #ffb8c6;
+    }
+
+    .btn-compute:hover {
+      background: linear-gradient(145deg, #3d2332, #24131e);
+      border-color: var(--accent-r-bright);
+      color: white;
+      box-shadow: 0 8px 28px rgba(233, 69, 96, 0.3);
+    }
+
+    /* ── Result Showcase ── */
+    .results-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem 1.4rem 1.2rem;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gold);
+      opacity: 0.4;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .result-card.r-card::before {
+      background: var(--accent-r);
+    }
+
+    .result-card.s-card::before {
+      background: var(--accent-s);
+    }
+
+    .result-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .result-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      margin-bottom: 0.6rem;
+    }
+
+    .result-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2rem;
+      font-weight: 500;
+      background: linear-gradient(180deg, #fff 0%, var(--champagne) 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      word-break: break-word;
+    }
+
+    .r-card .result-value {
+      background: linear-gradient(180deg, #ffb3c1, var(--accent-r-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .s-card .result-value {
+      background: linear-gradient(180deg, #a3f0e8, var(--accent-s-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .result-index {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+
+    /* ── Performance & History ── */
+    .perf-badge {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 0.2rem 0.7rem;
+      margin-top: 0.5rem;
+      display: inline-block;
+      color: #aaa;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .footer-luxury {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      flex-wrap: wrap;
+    }
+
+    .footer-luxury a {
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--gold-dark);
+    }
+
+    @media (max-width: 550px) {
+      .calculator-card {
+        padding: 1.5rem;
+      }
+
+      .result-value {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="masterpiece">
+    <div class="crest">
+      <div class="crest-icon">⚜️</div>
+      <div>
+        <h1>Hofstadter Figure‑Figure</h1>
+        <div class="sub">R(n) & S(n) · Complementary Sequences</div>
+      </div>
+    </div>
+
+    <div class="sequence-teaser">
+      <div class="teaser-seq teaser-r"><span>R</span> 1, 3, 7, 12, 18, 26, 35, 45, 56, 69…</div>
+      <div class="teaser-seq teaser-s"><span>S</span> 2, 4, 5, 6, 8, 9, 10, 11, 13, 14…</div>
+    </div>
+
+    <div class="calculator-card">
+      <div class="input-group">
+        <div class="input-wrapper">
+          <label><i>🔢</i> Index n (1‑indexed)</label>
+          <input type="number" id="nInput" class="input-field" value="10" min="1" step="1" placeholder="e.g. 1000">
+        </div>
+        <button id="computeBtn" class="btn-luxury btn-compute">
+          <span>⚡</span> Compute R & S
+        </button>
+        <button id="randomBtn" class="btn-luxury">
+          <span>🎲</span> Random n
+        </button>
+      </div>
+
+      <div class="results-panel">
+        <div class="result-card r-card">
+          <div class="result-label">R(n) · ffr</div>
+          <div class="result-value" id="rValue">—</div>
+          <div class="result-index" id="rIndex">n = 10</div>
+          <div class="perf-badge" id="rTime"></div>
+        </div>
+        <div class="result-card s-card">
+          <div class="result-label">S(n) · ffs</div>
+          <div class="result-value" id="sValue">—</div>
+          <div class="result-index" id="sIndex">n = 10</div>
+          <div class="perf-badge" id="sTime"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-luxury">
+      <span>Hofstadter Figure-Figure · R<sub>1</sub>=1, S<sub>1</sub>=2</span>
+      <a href="https://rosettacode.org/wiki/Hofstadter_Figure-Figure_sequences" target="_blank" rel="noopener">Rosetta Code↗</a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      // ────────────────────────────────────
+      // Core engine: Hofstadter Figure-Figure (lazy generation with caching)
+      // Using generators and dynamic expansion – supports arbitrarily large n.
+      // R(n) = R(n-1) + S(n-1), S = positive integers not in R.
+      // ────────────────────────────────────
+      const R_CACHE = [0, 1]; // 1-indexed: R[1]=1
+      const S_CACHE = [0, 2]; // S[1]=2
+      let maxComputed = 1; // last index for which R/S are fully known
+      // Set for O(1) membership test of R values
+      const R_SET = new Set([1]);
+      /**
+       * Ensure sequences are computed up to index n.
+       * Expands R and S incrementally using the recurrence.
+       */
+      function ensureComputedUpTo(n) {
+        if (n <= maxComputed) return;
+        // We need to compute R[k] for k = maxComputed+1 ... n
+        for (let k = maxComputed + 1; k <= n; k++) {
+          const prevR = R_CACHE[k - 1];
+          const prevS = S_CACHE[k - 1];
+          const newR = prevR + prevS;
+          R_CACHE[k] = newR;
+          R_SET.add(newR);
+          // Now fill S values: all positive integers not in R_SET,
+          // continuing from the last S value + 1.
+          let candidate = S_CACHE[S_CACHE.length - 1] + 1;
+          // We need exactly one new S value per R step (since S length = R length for 1-indexed alignment)
+          while (R_SET.has(candidate)) {
+            candidate++;
+          }
+          S_CACHE.push(candidate);
+        }
+        maxComputed = n;
+      }
+      /**
+       * ffr(n) – returns R(n) for any n >= 1.
+       */
+      function ffr(n) {
+        if (typeof n !== 'number' || n < 1 || !Number.isInteger(n)) {
+          throw new Error('ffr requires a positive integer index.');
+        }
+        ensureComputedUpTo(n);
+        return R_CACHE[n];
+      }
+      /**
+       * ffs(n) – returns S(n) for any n >= 1.
+       */
+      function ffs(n) {
+        if (typeof n !== 'number' || n < 1 || !Number.isInteger(n)) {
+          throw new Error('ffs requires a positive integer index.');
+        }
+        ensureComputedUpTo(n);
+        return S_CACHE[n];
+      }
+      // Expose to global scope for testing (as required by problem statement)
+      window.ffr = ffr;
+      window.ffs = ffs;
+      // ────────────────────────────────────
+      // Luxurious UI orchestration
+      // ────────────────────────────────────
+      const nInput = document.getElementById('nInput');
+      const computeBtn = document.getElementById('computeBtn');
+      const randomBtn = document.getElementById('randomBtn');
+      const rValueEl = document.getElementById('rValue');
+      const sValueEl = document.getElementById('sValue');
+      const rIndexEl = document.getElementById('rIndex');
+      const sIndexEl = document.getElementById('sIndex');
+      const rTimeEl = document.getElementById('rTime');
+      const sTimeEl = document.getElementById('sTime');
+
+      function formatTime(milliseconds) {
+        if (milliseconds < 1) return '<1ms';
+        return milliseconds.toFixed(2) + 'ms';
+      }
+
+      function updateUI(n) {
+        if (!n || n < 1) n = 1;
+        n = Math.floor(n);
+        const start = performance.now();
+        const rVal = ffr(n);
+        const sVal = ffs(n);
+        const end = performance.now();
+        const elapsed = end - start;
+        rValueEl.textContent = rVal.toLocaleString();
+        sValueEl.textContent = sVal.toLocaleString();
+        rIndexEl.textContent = `n = ${n}`;
+        sIndexEl.textContent = `n = ${n}`;
+        rTimeEl.textContent = `⚡ ${formatTime(elapsed)}`;
+        sTimeEl.textContent = `⚡ ${formatTime(elapsed)}`;
+      }
+
+      function handleCompute() {
+        const rawValue = parseInt(nInput.value, 10);
+        if (isNaN(rawValue) || rawValue < 1) {
+          nInput.value = 1;
+          updateUI(1);
+          return;
+        }
+        updateUI(rawValue);
+      }
+
+      function randomIndex() {
+        // Generate interesting indices: sometimes small, sometimes large
+        const rand = Math.random();
+        let n;
+        if (rand < 0.5) {
+          n = Math.floor(Math.random() * 200) + 1; // 1-200
+        } else if (rand < 0.85) {
+          n = Math.floor(Math.random() * 2000) + 200; // 200-2200
+        } else {
+          n = Math.floor(Math.random() * 50000) + 1000; // larger stress test
+        }
+        nInput.value = n;
+        updateUI(n);
+      }
+      computeBtn.addEventListener('click', handleCompute);
+      randomBtn.addEventListener('click', randomIndex);
+      nInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleCompute();
+      });
+      // Initial load with default value 10
+      updateUI(10);
+      // Also pre-warm for known test values to ensure instant response later
+      setTimeout(() => {
+        ensureComputedUpTo(1000);
+      }, 20);
+    })();
+  </script>
+</body>
+
+</html>
